@@ -23,13 +23,13 @@ class ImagePost
     #[Groups(['image:output'])]
     private ?string $originalFilename = null;
 
-    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
     #[Groups(['image:output'])]
-    private ?\DateTimeInterface $ponkaAddedAt = null;
+    private ?\DateTimeImmutable $ponkaAddedAt = null;
 
-    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
     #[Groups(['image:output'])]
-    private \DateTimeInterface $createdAt;
+    private \DateTimeImmutable $createdAt;
 
     public function __construct()
     {
@@ -65,7 +65,7 @@ class ImagePost
         return $this;
     }
 
-    public function getPonkaAddedAt(): ?\DateTimeInterface
+    public function getPonkaAddedAt(): ?\DateTimeImmutable
     {
         return $this->ponkaAddedAt;
     }
@@ -77,7 +77,7 @@ class ImagePost
         return $this;
     }
 
-    public function getCreatedAt(): ?\DateTimeInterface
+    public function getCreatedAt(): \DateTimeImmutable
     {
         return $this->createdAt;
     }
