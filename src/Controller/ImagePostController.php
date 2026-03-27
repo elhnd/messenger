@@ -3,7 +3,8 @@
 namespace App\Controller;
 
 use App\Entity\ImagePost;
-use App\Photo\PhotoPonkaficator;
+use App\Message\AddPonkaToImage;
+use App\Message\DeleteImagePost;
 use App\Repository\ImagePostRepository;
 use App\Photo\PhotoFileManager;
 use Doctrine\ORM\EntityManagerInterface;
@@ -12,6 +13,9 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Messenger\Envelope;
+use Symfony\Component\Messenger\MessageBusInterface;
+use Symfony\Component\Messenger\Stamp\DelayStamp;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Validator\Constraints\Image;
 use Symfony\Component\Validator\Constraints\NotBlank;
@@ -35,7 +39,7 @@ class ImagePostController extends AbstractController
         ValidatorInterface $validator,
         PhotoFileManager $photoManager,
         EntityManagerInterface $entityManager,
-        PhotoPonkaficator $ponkaficator,
+        MessageBusInterface $messageBus
     ): JsonResponse {
         /** @var UploadedFile $imageFile */
         $imageFile = $request->files->get('file');
@@ -57,29 +61,21 @@ class ImagePostController extends AbstractController
         $entityManager->persist($imagePost);
         $entityManager->flush();
 
-        /*
-         * Start Ponkafication!
-         */
-        $updatedContents = $ponkaficator->ponkafy(
-            $photoManager->read($imagePost->getFilename())
-        );
-        $photoManager->update($imagePost->getFilename(), $updatedContents);
-        $imagePost->markAsPonkaAdded();
-        $entityManager->flush();
-        /*
-         * You've been Ponkafied!
-         */
+        $message = new AddPonkaToImage($imagePost->getId());
+        $envelope = new Envelope($message, [
+            new DelayStamp(500)
+        ]);
+        $messageBus->dispatch($envelope);
 
         return $this->toJson($imagePost, 201);
     }
 
     #[Route('/api/images/{id}', methods: ['DELETE'])]
-    public function delete(ImagePost $imagePost, EntityManagerInterface $entityManager, PhotoFileManager $photoManager): Response
+    public function delete(ImagePost $imagePost, MessageBusInterface $messageBus): Response
     {
-        $photoManager->deleteImage($imagePost->getFilename());
+        $message = new DeleteImagePost($imagePost);
 
-        $entityManager->remove($imagePost);
-        $entityManager->flush();
+        $messageBus->dispatch($message);
 
         return new Response(null, 204);
     }
