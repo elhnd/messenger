@@ -11,7 +11,7 @@ use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-#[AsMessageHandler]
+#[AsMessageHandler(priority: 20)]
 class AddPonkaToImageHandler implements LoggerAwareInterface
 {
     use LoggerAwareTrait;
@@ -33,6 +33,10 @@ class AddPonkaToImageHandler implements LoggerAwareInterface
             }
             return;
         }
+
+        // if (rand(0, 10) < 7) {
+        //     throw new \Exception('I failed randomly!!!!');
+        // }
 
         $updatedContents = $this->ponkaficator->ponkafy(
             $this->photoManager->read($imagePost->getFilename())
