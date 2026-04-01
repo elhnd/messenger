@@ -1,20 +1,20 @@
 <?php
 
-namespace App\MessageHandler;
+namespace App\MessageHandler\Command;
 
-use App\Message\DeleteImagePost;
-use App\Message\DeletePhotoFile;
+use App\Message\Command\DeleteImagePost;
+use App\Message\Event\ImagePostDeletedEvent;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Messenger\MessageBusInterface;
 
-#[AsMessageHandler(priority: 10)]
+#[AsMessageHandler(bus: 'command.bus')]
 class DeleteImagePostHandler
 {
 
     public function __construct(
         private EntityManagerInterface $entityManager,
-        private MessageBusInterface $messageBus
+        private MessageBusInterface $eventBus
     ) {}
 
     public function __invoke(DeleteImagePost $deleteImagePost)
@@ -25,6 +25,6 @@ class DeleteImagePostHandler
         $this->entityManager->remove($imagePost);
         $this->entityManager->flush();
 
-        $this->messageBus->dispatch(new DeletePhotoFile($fileName));
+        $this->eventBus->dispatch(new ImagePostDeletedEvent($fileName));
     }
 }
