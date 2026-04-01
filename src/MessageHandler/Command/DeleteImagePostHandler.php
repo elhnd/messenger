@@ -8,7 +8,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Messenger\MessageBusInterface;
 
-#[AsMessageHandler(bus: 'command.bus')]
+#[AsMessageHandler(bus: 'command.bus' /*,method: '__invoke', priority: 10, fromTransport: 'async'*/)]
 class DeleteImagePostHandler
 {
 
