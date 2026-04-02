@@ -5,3 +5,5 @@ flysystem:
             adapter: 'local'
             options:
                 directory: '%kernel.project_dir%/public/uploads/images'
+            visibility: 'public'
+            directory_visibility: 'public'
