@@ -23,7 +23,11 @@ framework:
             async_priority_high:
                 dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
                 options:
-                    queue_name: high
+                    exchange:
+                        name: messages_high_priority
+                    queues:
+                        messages_high: ~
+                    # queue_name: high
             async: 
                 dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
                 retry_strategy:
