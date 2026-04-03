@@ -13,7 +13,6 @@ framework:
 
             query.bus: ~
 
-            
         # Uncomment this (and the failed transport below) to send failed messages to this transport for later handling.
         failure_transport: failed
 
@@ -24,14 +23,36 @@ framework:
                 dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
                 options:
                     exchange:
-                        name: messages_high_priority
+                        name: messages
+                        type: direct
+                        default_publish_routing_key: high
                     queues:
-                        messages_high: ~
+                        messages_high:
+                            binding_keys: [high]
                     # queue_name: high
-            async: 
+            async:
                 dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
+                # serializer: messenger.transport.symfony_serializer
                 retry_strategy:
                     delay: 500
+                options:
+                    exchange:
+                        name: messages
+                        type: direct
+                        default_publish_routing_key: normal
+                    queues:
+                        messages_normal:
+                            binding_keys: [normal]
+
+            external_messages:
+                dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
+                serializer: App\Messenger\ExternalJsonMessengerSerializer
+                options:
+                    auto_setup: false
+                    queues:
+                        messages_from_external: ~
+
+
             failed: 'doctrine://default?queue_name=failed'
             # sync: 'sync://'
 
